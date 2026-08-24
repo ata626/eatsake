@@ -269,8 +269,8 @@
     <div class="style-grid">
       <div class="style-card"><b>薰酒</b>｜香氣高、味道淡。適合生魚片、沙拉、清淡和食，當開胃酒也很好。</div>
       <div class="style-card"><b>爽酒</b>｜香氣味道皆清爽俐落。適合烤魚、蟹料理、鍋物，冷熱皆宜、百搭無負擔。</div>
-      <div class="style-card"><b>醇酒</b>｜米香、旨味與酒體較明顯。適合燒肉、味噌、燉煮、奶油料理與旨味較強的食材。</div>
-      <div class="style-card"><b>熟酒</b>｜熟成香氣濃郁，常見乾果、堅果、焦糖與香料調。適合烤鴨、燻製、紅燒、熟成起司與焦糖巧克力甜點。</div>
+      <div class="style-card"><b>醇酒</b>｜米香與旨味較明顯、酒體較厚。適合肉類、味噌、燉煮、奶油與菇類料理。</div>
+      <div class="style-card"><b>熟酒</b>｜熟成香氣濃郁，常見乾果、堅果、焦糖與香料調。適合燻製、烤鴨、紅燒、熟成肉、熟成起司與焦糖甜點。</div>
     </div>
     <p style="margin-top:14px;text-align:center;">當輸入的料理命中「風味邏輯資料庫」時，會直接依料理的重量、脂肪、旨味、香氣與料理方式判斷最適合的風格，並附上判斷理由；未命中時則退回一般食材關鍵字比對，並以百搭款式保底，避免顯示空結果。</p>
     <div class="footnote">資料來源：有木田酒藏 2026 年 3 月新酒目錄與商家酒單；搭餐邏輯整理自日本酒造組合中央會(JSS)官方薰爽醇熟分類、Asahi Shuzo、Sakaya、Reika Sake、DrWine1984 等清酒侍酒師搭餐指南</div>
@@ -521,8 +521,6 @@ function quick(text){
   doSearch();
 }
 
-// 將 V2 的四大類型映射到目前酒款清單使用的三種風格。
-// 熟酒目前優先從醇酒中挑選帶有熟成／生酛／山廢特徵的酒款。
 function v2StyleToCode(style){
   const map = {
     '薫酒':'KUN',
@@ -538,10 +536,9 @@ function renderV2Results(input, matches, resultsEl){
   const styleScore = {KUN:0, SOU:0, JUN:0};
   let preferAged = false;
 
-  // 去除完全重複的 V2 命中，避免同一筆資料重複加權。
-  const uniqueMatches = [];
+  const unique = [];
   const seen = new Set();
-  matches.forEach(match=>{
+  for(const match of matches){
     const key = [
       match.sourceType || '',
       match.dish || match.ingredient || '',
@@ -551,11 +548,11 @@ function renderV2Results(input, matches, resultsEl){
     ].join('|');
     if(!seen.has(key)){
       seen.add(key);
-      uniqueMatches.push(match);
+      unique.push(match);
     }
-  });
+  }
 
-  uniqueMatches.slice(0,20).forEach(match=>{
+  unique.slice(0,20).forEach(match=>{
     const primary = v2StyleToCode(match.primary);
     const secondary = v2StyleToCode(match.secondary);
     if(primary) styleScore[primary] += 3;
@@ -568,42 +565,31 @@ function renderV2Results(input, matches, resultsEl){
     let score = styleScore[style] || 0;
     const fullText = `${s.t || ''} ${s.note || ''}`;
     const isAgedLeaning = /山廢|山廃|生酛|熟成|陳釀|陳年|古酒|橡木桶/.test(fullText);
-
     if(preferAged && style === 'JUN' && isAgedLeaning) score += 3;
     if(score > 0 && /適合搭配|建議搭配|推薦搭配/.test(s.note || '')) score += 0.3;
-
     return {...s, score, style};
   }).filter(s=>s.score>0);
 
   scored.sort((a,b)=>{
-    if(b.score !== a.score) return b.score - a.score;
-    const ra = (a.rice===null || a.rice===undefined) ? 999 : a.rice;
-    const rb = (b.rice===null || b.rice===undefined) ? 999 : b.rice;
-    return ra - rb;
+    if(b.score !== a.score) return b.score-a.score;
+    const ra = (a.rice===null||a.rice===undefined) ? 999 : a.rice;
+    const rb = (b.rice===null||b.rice===undefined) ? 999 : b.rice;
+    return ra-rb;
   });
   scored = scored.slice(0,8);
 
-  const detailHtml = uniqueMatches.slice(0,6).map(match=>{
+  const detailHtml = unique.slice(0,6).map(match=>{
     const name = match.dish || match.ingredient || input;
     const method = match.method || match.preparation || '';
     const strategy = match.strategy ? `｜${match.strategy}` : '';
-    const evidence = match.evidence ? `｜證據 ${match.evidence}` : '';
-    return `
-      <div class="why-item">
-        <b>${name}</b>${method ? `<span>｜${method}</span>` : ''}${strategy}${evidence}
-        <br>
-        第一推薦：<b>${match.primary || '—'}</b> ／ 第二推薦：${match.secondary || '—'}
-        <br>
-        ${match.reason || ''}
-        ${match.temperature ? `<br><span class="temp-tag">建議飲用溫度：${match.temperature}</span>` : ''}
-      </div>
-    `;
+    const temp = match.temperature ? `　<span class="temp-tag">建議飲用溫度：${match.temperature}</span>` : '';
+    return `<div class="why-item"><b>${name}</b>${method ? `｜${method}` : ''}${strategy}<br>第一推薦：<b>${match.primary || '—'}</b> ／ 第二推薦：${match.secondary || '—'}<br>${match.reason || ''}${temp}</div>`;
   }).join('');
 
   resultsEl.innerHTML = `
     <div class="results-head">
       <span class="kw">「${input}」的推薦清酒</span>
-      <span class="count">V2 風味資料庫命中 ${uniqueMatches.length} 筆・推薦 ${scored.length} 款</span>
+      <span class="count">V2 風味資料庫命中 ${unique.length} 筆・推薦 ${scored.length} 款</span>
     </div>
     <div class="why-panel">${detailHtml}</div>
     ${renderCards(scored)}
@@ -618,9 +604,10 @@ async function doSearch(){
     return;
   }
 
-  // GitHub Pages 第一次開啟時 JSON 可能尚未讀完；搜尋前主動等待一次。
-  if((!V2_DB || !Array.isArray(V2_DB.ingredients) || V2_DB.ingredients.length===0) &&
-     typeof loadV2Database === 'function'){
+  // 若使用者在 V2 JSON 尚未載入完畢前就搜尋，先等一次。
+  if((!V2_DB || !Array.isArray(V2_DB.ingredients) || !Array.isArray(V2_DB.dishes) ||
+      (V2_DB.ingredients.length===0 && V2_DB.dishes.length===0)) &&
+      typeof loadV2Database === 'function'){
     resultsEl.innerHTML = '<div class="empty">正在載入 V2 配對資料庫…</div>';
     await loadV2Database();
   }
