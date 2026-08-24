@@ -241,26 +241,18 @@
 <body>
 <div class="wrap">
   <header>
-    <div class="brand">有 木 田  </div>
+    <div class="brand">有 木 田 日 本 酒 </div>
     <h1>今天喝什麼？<br>讓我們找一支有趣的清酒</h1>
-    <p class="sub">輸入今天的料理或食材，從有木田自家清酒目錄中，為你推薦搭配得宜的酒款。</p>
+    <p class="sub">輸入想吃的料理或食材，為你推薦搭配得宜的酒款。</p>
   </header>
 
   <div class="search-box">
     <input id="dishInput" type="text" placeholder="例如：生魚片、烤牛肉、起司、麻辣鍋⋯" onkeydown="if(event.key==='Enter')doSearch()">
     <button onclick="doSearch()">搜尋配對</button>
   </div>
-  <div class="chips">
-    <span class="chip" onclick="quick('生魚片刺身')">生魚片</span>
-    <span class="chip" onclick="quick('炙燒烤物')">炙燒烤物</span>
-    <span class="chip" onclick="quick('炸物天婦羅')">炸物</span>
-    <span class="chip" onclick="quick('起司乳酪')">起司</span>
-    <span class="chip" onclick="quick('火鍋鍋物')">鍋物</span>
-    <span class="chip" onclick="quick('甜點水果')">甜點</span>
-    <span class="chip" onclick="quick('海鮮生蠔')">海鮮</span>
-    <span class="chip" onclick="quick('牛排肉類')">肉類</span>
-    <span class="chip" onclick="quick('麻辣鍋')">麻辣鍋</span>
-  </div>
+ <div class="chips" id="randomChips">
+  <span class="chip">載入推薦中...</span>
+</div>
 
   <div class="results" id="results"></div>
 
@@ -293,9 +285,11 @@ async function loadV2Database() {
 
     V2_DB = await response.json();
 
-    console.log(
-      `V2 database loaded: ${V2_DB.ingredients.length} ingredients, ${V2_DB.dishes.length} dishes`
-    );
+console.log(
+  `V2 database loaded: ${V2_DB.ingredients.length} ingredients, ${V2_DB.dishes.length} dishes`
+);
+
+renderRandomChips();
   } catch (error) {
     console.error('無法讀取 V2 資料庫：', error);
   }
@@ -519,6 +513,63 @@ function extractTags(text){
 function quick(text){
   document.getElementById('dishInput').value = text;
   doSearch();
+}
+  function renderRandomChips() {
+  const container = document.getElementById('randomChips');
+
+  if (!container) return;
+
+  const ingredients = (V2_DB.ingredients || [])
+    .map(item => ({
+      name: item.ingredient,
+      type: '食材'
+    }))
+    .filter(item => item.name);
+
+  const dishes = (V2_DB.dishes || [])
+    .map(item => ({
+      name: item.dish,
+      type: '料理'
+    }))
+    .filter(item => item.name);
+
+  // 去除重複名稱
+  const uniqueIngredients = [
+    ...new Map(
+      ingredients.map(item => [item.name, item])
+    ).values()
+  ];
+
+  const uniqueDishes = [
+    ...new Map(
+      dishes.map(item => [item.name, item])
+    ).values()
+  ];
+
+  // 隨機洗牌
+  const shuffle = array =>
+    [...array].sort(() => Math.random() - 0.5);
+
+  // 食材 3 個 + 料理 3 個
+  const selected = [
+    ...shuffle(uniqueIngredients).slice(0, 3),
+    ...shuffle(uniqueDishes).slice(0, 3)
+  ];
+
+  // 再把六個順序打散
+  const finalItems = shuffle(selected);
+
+  container.innerHTML = finalItems
+    .map(item => `
+      <span
+        class="chip"
+        onclick="quick('${item.name.replace(/'/g, "\\'")}')"
+        title="${item.type}"
+      >
+        ${item.name}
+      </span>
+    `)
+    .join('');
 }
 
 function v2StyleToCode(style){
