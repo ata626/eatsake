@@ -34,26 +34,63 @@
   }
   .wrap{max-width:880px;margin:0 auto;padding:48px 24px 80px;}
   header{text-align:center;margin-bottom:36px;}
- .brand {
+.brand {
   font-size: 32px;
   font-weight: 800;
+  color: var(--terracotta);
+  margin-bottom: 8px;
 }
 
-.brand a,
-.brand a:visited,
-.brand a:hover,
-.brand a:active {
-  color: inherit;
+.brand a {
+  color: var(--terracotta);
   text-decoration: none;
-}}
-  h1{
-    font-family:"Shippori Mincho", serif;
-    font-size:clamp(24px,5vw,42px);
-    font-weight:700;
-    margin:0 0 14px;
-    color:var(--ink);
-  }
-  .sub{color:var(--ink-soft);font-size:15px;max-width:520px;margin:0 auto;}
+  transition: opacity 0.2s ease;
+}
+
+.brand a:visited {
+  color: var(--terracotta);
+}
+
+.brand a:hover {
+  color: var(--terracotta);
+  opacity: 0.7;
+}
+
+.brand a:active {
+  color: var(--terracotta);
+}
+
+
+/* 今天喝什麼？＋讓我們找一支有趣的清酒 */
+h1 {
+  font-family: "Shippori Mincho", serif;
+
+  /* 字體大小 */
+  font-size: 24px;
+
+  /* 字體粗細 */
+  font-weight: 700;
+
+  /* 兩行文字上下距離 */
+  line-height: 1.4;
+
+  /* 整段標題最大寬度 */
+  max-width: 520px;
+
+  /* 水平置中 */
+  margin: 0 auto 14px;
+
+  color: var(--ink);
+}
+
+
+/* 標題下面的小字 */
+.sub {
+  color: var(--ink-soft);
+  font-size: 15px;
+  max-width: 520px;
+  margin: 0 auto;
+}
   .search-box{
     margin:36px auto 8px;
     max-width:640px;
