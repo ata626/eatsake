@@ -1,0 +1,888 @@
+<!DOCTYPE html>
+<html lang="zh-Hant">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>有木田 · 清酒餐搭配對工具</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Shippori+Mincho:wght@500;700&family=Noto+Sans+TC:wght@400;500;700&display=swap" rel="stylesheet">
+<style>
+  :root{
+    --bg:#f9f4f1;
+    --bg-2:#ede4d2;
+    --card:#ffffff;
+    --ink:#514f49;
+    --ink-soft:#9a978d;
+    --terracotta:#c9a860;
+    --terracotta-dark:#a98940;
+    --sage:#b9c3cd;
+    --sage-dark:#7e8fa0;
+    --sand:#ede4d2;
+    --line:#e6ded0;
+    --gold:#a7a8a1;
+  }
+  *{box-sizing:border-box;}
+  body{
+    margin:0;
+    background:var(--bg);
+    background-image:
+      radial-gradient(circle at 10% 0%, rgba(217,122,91,.08), transparent 45%),
+      radial-gradient(circle at 90% 100%, rgba(139,168,136,.12), transparent 45%);
+    color:var(--ink);
+    font-family:"Noto Sans TC", sans-serif;
+    line-height:1.7;
+  }
+  .wrap{max-width:880px;margin:0 auto;padding:48px 24px 80px;}
+  header{text-align:center;margin-bottom:36px;}
+.brand {
+  font-size: 32px;
+  font-weight: 800;
+  letter-spacing: 0.15em;
+  color: var(--terracotta);
+  margin-bottom: 8px;
+}
+
+.brand a {
+  color: var(--terracotta);
+  text-decoration: none;
+  transition: opacity 0.2s ease;
+}
+
+.brand a:visited {
+  color: var(--terracotta);
+}
+
+.brand a:hover {
+  color: var(--terracotta);
+  opacity: 0.7;
+}
+
+.brand a:active {
+  color: var(--terracotta);
+}
+
+
+/* 今天喝什麼？＋讓我們找一支有趣的清酒 */
+h1 {
+  font-family: "Shippori Mincho", serif;
+
+  /* 字體大小 */
+  font-size: 24px;
+
+  /* 字體粗細 */
+  font-weight: 700;
+
+  /* 兩行文字上下距離 */
+  line-height: 1.4;
+
+  /* 整段標題最大寬度 */
+  max-width: 520px;
+
+  /* 水平置中 */
+  margin: 0 auto 14px;
+
+  color: var(--ink);
+}
+
+
+/* 標題下面的小字 */
+.sub {
+  color: var(--ink-soft);
+  font-size: 15px;
+  max-width: 520px;
+  margin: 0 auto;
+}
+  .search-box{
+    margin:36px auto 8px;
+    max-width:640px;
+    display:flex;
+    gap:10px;
+    background:var(--card);
+    border:1px solid var(--line);
+    border-radius:14px;
+    padding:8px;
+    box-shadow:0 6px 20px rgba(180,140,90,.10);
+  }
+  .search-box input{
+    flex:1;
+    background:transparent;
+    border:none;
+    outline:none;
+    color:var(--ink);
+    font-size:16px;
+    padding:12px 14px;
+    font-family:"Noto Sans TC",sans-serif;
+  }
+  .search-box input::placeholder{color:#bcb6a8;}
+  .search-box button{
+    background:var(--terracotta);
+    color:#fff;
+    border:none;
+    border-radius:10px;
+    padding:0 22px;
+    font-size:15px;
+    font-weight:500;
+    cursor:pointer;
+    font-family:"Noto Sans TC",sans-serif;
+    transition:background .15s;
+  }
+  .search-box button:hover{background:var(--terracotta-dark);}
+  .chips{
+    display:flex;
+    flex-wrap:wrap;
+    gap:8px;
+    justify-content:center;
+    margin:16px 0 8px;
+  }
+  .chip{
+    border:1px solid var(--line);
+    color:var(--sage-dark);
+    background:#fff;
+    padding:6px 14px;
+    border-radius:20px;
+    font-size:13px;
+    cursor:pointer;
+    transition:.15s;
+  }
+  .chip:hover{background:var(--sage);color:#fff;border-color:var(--sage);}
+  .results{margin-top:40px;}
+  .results-head{
+    display:flex;
+    align-items:baseline;
+    gap:10px;
+    flex-wrap:wrap;
+    margin-bottom:18px;
+    border-bottom:1px solid var(--line);
+    padding-bottom:10px;
+  }
+  .results-head .kw{color:var(--terracotta-dark);font-family:"Shippori Mincho",serif;font-size:20px;}
+  .results-head .count{color:var(--ink-soft);font-size:13px;}
+  .cards{display:grid;grid-template-columns:1fr;gap:16px;}
+  .card{
+    background:var(--card);
+    border:1px solid var(--line);
+    border-radius:16px;
+    padding:20px 22px;
+    position:relative;
+    overflow:hidden;
+    box-shadow:0 4px 14px rgba(180,140,90,.06);
+  }
+  .card::before{
+    content:"";
+    position:absolute;
+    top:0;left:0;bottom:0;
+    width:5px;
+    background:var(--terracotta);
+  }
+  .card.top::before{background:var(--gold);}
+  .card-top{display:flex;justify-content:space-between;align-items:flex-start;gap:12px;flex-wrap:wrap;}
+  .card h3{
+    font-family:"Shippori Mincho",serif;
+    margin:0 0 6px;
+    font-size:19px;
+    color:var(--ink);
+  }
+  .meta-row{display:flex;align-items:center;flex-wrap:wrap;gap:8px;margin-bottom:8px;}
+  .rice-badge{
+    display:inline-block;
+    font-size:11px;
+    color:#7e8fa0;
+    background:#eaeef2;
+    border:1px solid #c9d3dc;
+    border-radius:20px;
+    padding:2px 10px;
+  }
+  .region-badge{
+    display:inline-block;
+    font-size:12px;
+    color:var(--sage-dark);
+    background:#eaeef2;
+    border:1px solid #c9d3dc;
+    border-radius:8px;
+    padding:2px 10px;
+    font-weight:500;
+  }
+  .brewery{color:var(--ink-soft);font-size:13px;}
+  .card .type-badge{
+    display:inline-block;
+    font-size:11px;
+    letter-spacing:.05em;
+    color:var(--terracotta-dark);
+    background:#f6ecd6;
+    border:1px solid #e6d6ab;
+    border-radius:20px;
+    padding:2px 10px;
+  }
+  .card .style-badge{
+    display:inline-block;
+    font-size:11px;
+    color:#7e8fa0;
+    background:#f0eee9;
+    border:1px solid #dcdad2;
+    border-radius:20px;
+    padding:2px 10px;
+  }
+  .card .price{
+    font-family:"Shippori Mincho",serif;
+    color:var(--terracotta-dark);
+    font-size:17px;
+    white-space:nowrap;
+  }
+  .card .note{margin:10px 0 0;color:#514f49;font-size:14.5px;}
+  .empty{
+    text-align:center;
+    color:var(--ink-soft);
+    padding:60px 20px;
+    font-size:15px;
+  }
+  .why-panel{
+    background:#f6f1e6;
+    border:1px solid var(--line);
+    border-radius:14px;
+    padding:16px 18px;
+    margin-bottom:20px;
+  }
+  .why-item{
+    font-size:13.5px;
+    color:var(--ink);
+    padding:6px 0;
+    border-bottom:1px dashed var(--line);
+  }
+  .why-item:last-child{border-bottom:none;}
+  .why-item b{color:var(--terracotta-dark);font-family:"Shippori Mincho",serif;}
+  .temp-tag{color:var(--sage-dark);font-size:12px;}
+  .tip-panel{
+    margin-top:60px;
+    border-top:1px solid var(--line);
+    padding-top:24px;
+    font-size:13.5px;
+    color:var(--ink-soft);
+  }
+  .tip-panel h4{
+    font-family:"Shippori Mincho",serif;
+    color:var(--ink);
+    font-size:15px;
+    margin:0 0 10px;
+    text-align:center;
+  }
+  .style-grid{
+    display:grid;
+    grid-template-columns:repeat(auto-fit,minmax(180px,1fr));
+    gap:10px;
+    margin-top:10px;
+  }
+  .style-card{
+    background:#fff;
+    border:1px solid var(--line);
+    border-radius:12px;
+    padding:12px 14px;
+  }
+  .style-card b{color:var(--terracotta-dark);font-family:"Shippori Mincho",serif;}
+  .footnote{margin-top:16px;color:#a7a8a1;font-size:12px;text-align:center;}
+</style>
+</head>
+<body>
+<div class="wrap">
+  <header>
+   <div class="brand">
+  <a href="https://udonnihonshu.com/"
+     target="_blank"
+     rel="noopener noreferrer">
+    有木田日本酒
+  </a>
+</div>
+    <h1>今天喝什麼？<br>讓我們找一支有趣的清酒</h1>
+    <p class="sub">輸入想吃的料理或食材，為你推薦搭配得宜的酒款。</p>
+  </header>
+
+  <div class="search-box">
+    <input id="dishInput" type="text" placeholder="例如：生魚片、烤牛肉、起司、麻辣鍋⋯" onkeydown="if(event.key==='Enter')doSearch()">
+    <button onclick="doSearch()">搜尋配對</button>
+  </div>
+ <div class="chips" id="randomChips">
+  <span class="chip">載入推薦中...</span>
+</div>
+
+  <div class="results" id="results"></div>
+
+  <div class="tip-panel">
+    <h4>清酒搭餐的四個基本方向</h4>
+    <div class="style-grid">
+      <div class="style-card"><b>薰酒</b>｜香氣高、味道淡。適合生魚片、沙拉、清淡和食，當開胃酒也很好。</div>
+      <div class="style-card"><b>爽酒</b>｜香氣味道皆清爽俐落。適合烤魚、蟹料理、鍋物，冷熱皆宜、百搭無負擔。</div>
+      <div class="style-card"><b>醇酒</b>｜米香與旨味較明顯、酒體較厚。適合肉類、味噌、燉煮、奶油與菇類料理。</div>
+      <div class="style-card"><b>熟酒</b>｜熟成香氣濃郁，常見乾果、堅果、焦糖與香料調。適合燻製、烤鴨、紅燒、熟成肉、熟成起司與焦糖甜點。</div>
+    </div>
+    <p style="margin-top:14px;text-align:center;">當輸入的料理命中「風味邏輯資料庫」時，會直接依料理的重量、脂肪、旨味、香氣與料理方式判斷最適合的風格，並附上判斷理由；未命中時則退回一般食材關鍵字比對，並以百搭款式保底，避免顯示空結果。</p>
+    <div class="footnote">資料來源：有木田酒藏 2026 年 3 月新酒目錄與商家酒單；搭餐邏輯整理自日本酒造組合中央會(JSS)官方薰爽醇熟分類、Asahi Shuzo、Sakaya、Reika Sake、DrWine1984 等清酒侍酒師搭餐指南</div>
+  </div>
+</div>
+
+<script>
+  let V2_DB = {
+  ingredients: [],
+  dishes: []
+};
+
+async function loadV2Database() {
+  try {
+    const response = await fetch('./清酒食物搭配資料庫_V2.json');
+
+    if (!response.ok) {
+      throw new Error('V2 database load failed');
+    }
+
+    V2_DB = await response.json();
+
+console.log(
+  `V2 database loaded: ${V2_DB.ingredients.length} ingredients, ${V2_DB.dishes.length} dishes`
+);
+
+renderRandomChips();
+  } catch (error) {
+    console.error('無法讀取 V2 資料庫：', error);
+  }
+}
+
+loadV2Database();
+let SAKE_DATA = [];
+let SAKE_DATA_LOADED = false;
+
+async function loadSakeData() {
+  if (SAKE_DATA_LOADED) return SAKE_DATA;
+
+  try {
+    const response = await fetch('./sake-data.json', { cache: 'no-store' });
+
+    if (!response.ok) {
+      throw new Error('Sake database load failed');
+    }
+
+    const data = await response.json();
+
+    if (!Array.isArray(data)) {
+      throw new Error('sake-data.json 格式錯誤：最外層必須是陣列');
+    }
+
+    SAKE_DATA = data;
+    SAKE_DATA_LOADED = true;
+
+    console.log(`Sake database loaded: ${SAKE_DATA.length} bottles`);
+    return SAKE_DATA;
+  } catch (error) {
+    console.error('無法讀取清酒資料：', error);
+    throw error;
+  }
+}
+
+loadSakeData();
+const KEYWORD_MAP = {"SASHIMI": ["生魚片", "刺身", "壽司", "握壽司", "鮪魚", "鮭魚生食", "海鮮丼", "散壽司", "手卷", "刺身盛合"], "SEAFOOD": ["海鮮", "蝦", "蟹", "貝", "生蠔", "牡蠣", "蛤蜊", "章魚", "花枝", "小卷", "龍蝦", "扇貝"], "WHITEFISH": ["白肉魚", "鯛魚", "比目魚", "鱸魚", "龍膽石斑", "土魠魚", "鮭魚排", "烤鮭魚"], "GRILL": ["烤", "燒烤", "炙燒", "串燒", "烤肉", "烤魚", "煎魚", "牛排", "BBQ", "烤雞", "燒鳥", "照燒", "蒲燒", "鰻魚飯", "鐵板燒", "秋刀魚"], "FRIED": ["炸", "天婦羅", "唐揚", "炸雞", "炸物", "酥炸", "可樂餅", "炸豬排", "豬排", "天丼", "炸蝦", "可乐饼"], "HOTPOT": ["鍋", "火鍋", "壽喜燒", "關東煮", "燉", "滷", "煮物", "涮涮鍋", "石狩鍋", "牛肉鍋", "馬鈴薯燉肉", "壽喜鍋", "湯底", "燉牛肉", "燉煮", "味噌湯", "味噌鍋", "牛雜湯"], "MEAT": ["肉", "牛肉", "豬肉", "雞肉", "羊肉", "燒肉", "牛排", "滷肉", "漢堡", "漢堡排", "牛丼", "親子丼", "咖哩飯", "烤羊排", "羊排", "牛小排"], "CHEESE": ["起司", "乳酪", "乳製品", "奶油", "披薩", "白醬", "濃湯", "燉飯", "奶油義大利麵", "奶油白醬", "凱薩沙拉"], "DESSERT": ["甜點", "蛋糕", "水果", "布丁", "冰淇淋", "巧克力", "餅乾", "提拉米蘇", "起司蛋糕", "舒芙蕾", "鬆餅", "法式吐司"], "LIGHT": ["沙拉", "小菜", "涼拌", "清蒸", "豆腐", "蔬菜", "和食", "家常", "茶碗蒸", "漬物", "涼拌豆腐", "蒸蛋", "湯豆腐", "清湯", "涼麵", "冷盤"], "SPICY": ["辣", "麻辣", "咖哩", "香料", "山椒", "肉桂", "四川", "泰式", "韓式", "麻婆豆腐", "辣炒"], "RICH": ["熱炒", "油炸重口味", "滷味", "中式", "紅燒", "拉麵", "叉燒", "味噌", "燒臘", "焢肉", "東坡肉", "回鍋肉", "重口味", "濃醇醬汁", "牛雜", "烏龍麵", "蕎麥麵", "義大利麵", "鵝肝", "燉牛肉", "牛肉麵"], "APERITIF": ["開胃", "餐前", "生火腿", "堅果", "起司拼盤"]};
+
+// 依品迷網四大清酒風格分類，對應可搭配的料理標籤（作為輔助加分，非唯一依據）
+const STYLE_DISH_BONUS = {
+  KUN:  ["SASHIMI","LIGHT","APERITIF"],                    // 薰酒：香氣高味道淡
+  SOU:  ["GRILL","SEAFOOD","HOTPOT","WHITEFISH"],          // 爽酒：清爽俐落
+  JUN:  ["MEAT","FRIED","SPICY","RICH","HOTPOT","CHEESE"]  // 醇酒：米香濃郁重口味，含熟成款
+};
+
+function inferStyle(sake){
+  // 熟成／古酒款一併歸入「醇酒」類別
+  if(/熟成|陳釀|橡木桶|古酒|年熟成|25\s*年|3\s*年熟成/.test(sake.t+sake.note)) return "JUN";
+  if(/山廢|山廃|生酛|濃郁|醇厚|渾厚|旨味/.test(sake.note) && /純米|特別純米/.test(sake.t)) return "JUN";
+  if(/大吟釀|吟釀/.test(sake.t) && /花香|果香|優雅|清爽|淡麗|芬芳/.test(sake.note)) return "KUN";
+  if(/本釀造|普通酒|辛口|俐落|爽口/.test(sake.t+sake.note)) return "SOU";
+  return "KUN";
+}
+const STYLE_LABEL = {KUN:"薰酒",SOU:"爽酒",JUN:"醇酒"};
+
+// ============================================================
+// 料理／食材風味邏輯資料庫
+// 依據：日本酒造組合中央會(JSS)官方薰爽醇熟分類、Asahi Shuzo、
+// Sakaya、Reika Sake、DrWine1984 等清酒搭餐指南整理而成。
+// 不是單純的「料理=酒款」死背表，而是先判斷料理的重量、脂肪、
+// 旨味、香氣、料理方式，再決定搭配策略(橋接/對比/放大)與風格。
+// styles: 依優先順序列出適合風格；preferAged: 是否優先挑選帶有
+// 山廢/生酛/熟成調性的酒款(對應熟酒的濃郁複雜特質，仍歸類醇酒)。
+// ============================================================
+const DISH_PROFILES = {
+  // ---- 日本料理 ----
+  "刺身":{styles:["KUN","SOU"],why:"生食、低脂清淡，薰酒的果香或爽酒的俐落最能襯托魚鮮甜味，酒體太重會蓋過細緻風味。",temp:"5-10°C"},
+  "甜蝦":{styles:["KUN","SOU"],why:"低脂高甜味，薰酒的果香與其天然甜味形成香氣橋接。",temp:"5-10°C"},
+  "海膽":{styles:["JUN","KUN"],why:"旨味極高，純米酒的米旨味能與海膽的胺基酸鮮味產生共鳴放大。",temp:"10°C"},
+  "蟹肉":{styles:["KUN","JUN"],why:"鮮甜細緻，薰酒香氣可放大蟹肉甜味；旨味型純米也能與蟹肉鮮味共鳴。",temp:"8-12°C"},
+  "鮪魚":{styles:["SOU","KUN"],why:"中等油脂與濃郁魚肉旨味，爽酒俐落洗油，薰酒果香可橋接。",temp:"8-10°C"},
+  "大トロ":{styles:["JUN","SOU"],why:"高脂肪，需要酒體承接油脂，醇酒的米旨味與酒體較能平衡。",temp:"10-15°C"},
+  "鯖魚":{styles:["SOU","JUN"],why:"油脂偏高且腥香明顯，爽酒清爽俐落可洗油解膩。",temp:"常溫或溫燗"},
+  "秋刀魚鹽燒":{styles:["JUN","SOU"],why:"鹽烤產生焦香與油脂釋出，醇酒可承接烘烤香氣與旨味。",temp:"常溫"},
+  "鰻魚蒲燒":{styles:["JUN"],preferAged:true,why:"甜鹹醬汁、高脂肪、炭烤焦香三者疊加，官方資料明確以熟成調性濃郁的醇酒(山廢/生酛/長期熟成)最能匹配，屬發酵橋接+對比油脂。",temp:"常溫或溫燗15-20°C"},
+  "天婦羅":{styles:["SOU","KUN"],why:"油炸帶來油膩感，爽酒俐落口感可洗油解膩，避免疊加油感。",temp:"5-10°C"},
+  "唐揚":{styles:["SOU","KUN"],why:"炸雞外酥內嫩，油脂中等，爽酒對比洗口最平衡。",temp:"常溫或冷飲"},
+  "薑汁燒肉":{styles:["JUN"],why:"豬肉旨味＋醬油發酵鮮味＋甜味＋薑辛香＋煎烤焦香，多重旨味與焦香疊加，醇酒的米旨味最能與肉類旨味共鳴，酒體也能承接油脂。",temp:"常溫或溫燗"},
+  "豬角煮":{styles:["JUN"],preferAged:true,why:"長時間燉煮，脂肪與醬油甜鹹味濃郁，需醇厚帶熟成感的酒款接住油脂與醬香。",temp:"溫燗"},
+  "壽喜燒":{styles:["JUN"],why:"牛肉油脂＋甜鹹醬汁＋蛋液滑順口感，醇酒旨味與甜潤感最匹配。",temp:"常溫或溫燗"},
+  "筑前煮":{styles:["SOU","JUN"],why:"根莖蔬菜與雞肉燉煮，風味中等，爽酒或清爽醇酒皆可。",temp:"常溫"},
+  "金平牛蒡":{styles:["SOU","JUN"],why:"牛蒡土壤感與醬油甜辣，可用發酵橋接找純米酒，或爽酒保持清爽。",temp:"常溫"},
+  "冷奴":{styles:["KUN","SOU"],why:"清淡豆腐，需輕盈香氣型酒款，避免蓋過豆香。",temp:"冷飲"},
+  "湯豆腐":{styles:["SOU","KUN"],why:"清淡湯品，爽酒或薰酒皆可保持料理的清爽本質。",temp:"溫燗或常溫"},
+  "味噌料理":{styles:["JUN"],why:"味噌是發酵食品，與純米酒之間存在「發酵橋接」，米麴旨味互相呼應。",temp:"常溫或溫燗"},
+  "味噌湯":{styles:["JUN","SOU"],why:"發酵橋接：味噌的麴香與純米酒的米旨味呼應，質地清淡則爽酒也適合。",temp:"溫燗"},
+  "茶碗蒸":{styles:["SOU","KUN"],why:"滑順清淡的蒸蛋料理，適合中等重量、不搶味的爽酒或薰酒。",temp:"常溫"},
+  "燒鳥":{styles:["JUN","SOU"],why:"炭烤雞肉帶焦香與油脂，依部位濃淡可選醇酒或爽酒。",temp:"常溫或溫燗"},
+  "漬物":{styles:["SOU","KUN"],why:"清酒不靠高酸配漬物，選擇乾淨俐落的爽酒避免被酸度壓過。",temp:"冷飲"},
+  "酒盗":{styles:["JUN"],preferAged:true,why:"鹽辛發酵鮮味極濃，需要濃郁複雜的熟成調性醇酒才能匹配強度。",temp:"常溫"},
+  "生蝦":{styles:["KUN"],why:"生食低脂，薰酒香氣最能襯托甜味。",temp:"5-10°C"},
+  "水煮蝦":{styles:["SOU","KUN"],why:"清爽簡單調理，爽酒或薰酒皆宜。",temp:"冷飲"},
+  "蒜香煎蝦":{styles:["JUN"],why:"煎香＋蒜味增加風味強度與油脂感，醇酒承接力較佳。",temp:"常溫"},
+  "辣椒蝦":{styles:["SOU","KUN"],why:"辣度會放大酒精刺激，選清爽或柔和薰酒而非重酒。",temp:"冷飲"},
+
+  // ---- 中華料理 ----
+  "北京烤鴨":{styles:["JUN"],preferAged:true,why:"鴨脂＋甜麵醬＋烘烤＋甜鹹，官方資料建議濃郁複雜的熟成調性醇酒為最佳，一般旨味型純米為次佳。",temp:"15-20°C"},
+  "鹽烤鴨":{styles:["JUN"],why:"鹽味凸顯鴨肉本身鮮味與油脂，一般旨味型醇酒優先，不需過度熟成調性。",temp:"常溫"},
+  "橙醬鴨胸":{styles:["KUN","JUN"],why:"柑橘醬汁可與薰酒的果香形成橋接；鴨胸油脂則讓醇酒也是選項，依醬汁比例決定。",temp:"常溫"},
+  "麻婆豆腐":{styles:["SOU","KUN"],why:"辣度會放大酒精與苦味刺激，需選清爽俐落或柔和帶甜潤感的酒，而非厚重烈酒。",temp:"冷飲"},
+  "宮保雞丁":{styles:["SOU","JUN"],why:"辣甜鹹並存，爽酒對比降低辣感，油脂中等醇酒也可承接。",temp:"常溫"},
+  "糖醋魚":{styles:["KUN","SOU"],why:"明顯甜酸味，薰酒果香可橋接甜味，爽酒則能中和酸度。",temp:"冷飲"},
+  "紅燒肉":{styles:["JUN"],preferAged:true,why:"長時間燉煮的高脂肪＋醬油發酵甜鹹味，濃郁複雜的醇酒(帶熟成感)最能承接。",temp:"溫燗"},
+  "蒜泥白肉":{styles:["SOU","JUN"],why:"蒜辣與肉脂並存，爽酒解膩、旨味型醇酒共鳴皆可。",temp:"常溫"},
+  "三杯雞":{styles:["JUN"],why:"九層塔香料＋麻油＋醬油發酵鮮味，適合旨味與發酵感明顯的醇酒。",temp:"溫燗"},
+  "蔥爆牛肉":{styles:["JUN","SOU"],why:"牛肉旨味明顯，醇酒共鳴最佳；蔥香清爽則爽酒也可平衡。",temp:"常溫"},
+  "牛肉麵":{styles:["JUN"],preferAged:true,why:"濃郁湯頭＋燉煮牛肉旨味＋辛香料，需要厚實複雜的醇酒承接強度。",temp:"溫燗"},
+  "叉燒":{styles:["JUN"],why:"甜鹹醬汁與油脂交織，醇酒的旨味與甜潤感可與之呼應。",temp:"常溫或溫燗"},
+  "蝦餃":{styles:["KUN","SOU"],why:"清淡鮮蝦內餡，薰酒或爽酒能保持料理原味。",temp:"冷飲"},
+  "燒賣":{styles:["SOU","JUN"],why:"豬肉與蝦仁混合，中等旨味與油脂，爽酒或溫和醇酒皆宜。",temp:"常溫"},
+  "椒鹽蝦":{styles:["SOU","KUN"],why:"油炸帶胡椒鹹香，爽酒俐落解膩。",temp:"冷飲"},
+  "酸辣湯":{styles:["SOU"],why:"高酸度與辣感，選擇乾淨俐落、酒精刺激低的爽酒最穩妥。",temp:"溫燗"},
+
+  // ---- 法式料理 ----
+  "白魚卡帕喬":{styles:["KUN","SOU"],why:"生食薄切、低脂清爽，薰酒果香或爽酒俐落皆能襯托。",temp:"5-10°C"},
+  "鮭魚奶油醬":{styles:["JUN","KUN"],why:"奶油帶來乳脂厚度，醇酒的米旨味與酒體足以承接乳製品的濃郁。",temp:"常溫"},
+  "法式蝸牛":{styles:["JUN"],why:"大量奶油與蒜香，屬高脂濃郁料理，醇酒可與奶油乳脂共鳴。",temp:"常溫"},
+  "鴨胸橙醬":{styles:["KUN","JUN"],why:"與橙醬鴨胸邏輯相同，柑橘香氣可橋接薰酒，油脂則讓醇酒也適用。",temp:"常溫"},
+  "鴨腿油封":{styles:["JUN"],preferAged:true,why:"油封工法使油脂含量極高，需濃郁複雜、能承接大量油脂的熟成調性醇酒。",temp:"15-20°C"},
+  "牛排":{styles:["JUN"],why:"高蛋白高脂肪，經煎烤產生梅納反應焦香，醇酒的米旨味與酒體最能匹配這種重量級料理。",temp:"常溫"},
+  "牛肉燉煮":{styles:["JUN"],preferAged:true,why:"長時間燉煮使旨味與油脂高度濃縮，適合厚實複雜的醇酒。",temp:"溫燗"},
+  "香煎干貝":{styles:["KUN","JUN"],why:"外煎焦香內部細緻鮮甜，依煎香程度可選薰酒橋接甜味，或醇酒承接焦香。",temp:"常溫"},
+  "龍蝦":{styles:["KUN","JUN"],why:"鮮甜高旨味，薰酒可放大甜味，奶油醬汁版本則適合醇酒。",temp:"常溫"},
+  "法式洋蔥湯":{styles:["JUN"],preferAged:true,why:"焦糖化洋蔥與濃郁起司烤香，需濃郁複雜的熟成調性醇酒承接烘烤與發酵香氣。",temp:"溫燗"},
+  "起司":{styles:["JUN"],preferAged:true,why:"發酵橋接：起司的發酵風味與熟成調性醇酒(山廢/生酛/長期熟成)的複雜香氣最能共鳴，越熟成的起司越適合越濃郁的酒。",temp:"常溫或溫燗"},
+  "火腿":{styles:["JUN"],why:"官方資料實測「火腿×溫熱清酒」效果極佳，發酵鹽漬鮮味與溫燗醇酒的旨味互相呼應。",temp:"溫燗"},
+  "鵝肝":{styles:["JUN"],preferAged:true,why:"極高脂肪與濃郁風味，需要複雜度足夠的熟成調性醇酒才能與之抗衡並融合。",temp:"15-20°C"},
+
+  // ---- 義式料理 ----
+  "番茄海鮮義大利麵":{styles:["SOU","KUN"],why:"番茄帶酸，清酒不靠高酸配對，選擇乾淨俐落的爽酒避免酸度壓過酒體。",temp:"常溫"},
+  "青醬義大利麵":{styles:["KUN"],why:"羅勒青綠香氣與堅果油脂，WSET資料建議與果香型吟釀(薰酒)做香氣橋接。",temp:"常溫"},
+  "海鮮燉飯":{styles:["JUN","KUN"],why:"奶油與海鮮旨味交織，中等厚度的醇酒或薰酒皆可依濃淡調整。",temp:"常溫"},
+  "松露奶油義大利麵":{styles:["JUN"],preferAged:true,why:"WSET資料明確指出松露的土壤菌菇香氣與生酛/山廢/熟成型清酒的複雜香氣可形成香氣橋接。",temp:"常溫"},
+  "瑪格麗特披薩":{styles:["SOU","KUN"],why:"起司與番茄的組合中等強度，爽酒或薰酒皆能平衡。",temp:"常溫"},
+  "炸海鮮":{styles:["SOU","KUN"],why:"油炸帶來油膩感，爽酒俐落解膩最適合。",temp:"冷飲"},
+
+  // ---- 水果 ----
+  "鳳梨":{styles:["KUN"],why:"熱帶水果香氣明顯，與吟釀常見的果香形成直接香氣橋接。",temp:"5-10°C"},
+  "檸檬":{styles:["KUN","SOU"],why:"少量點綴時薰酒可用柑橘香氣橋接；若酸度很重則改用更乾淨俐落的爽酒，避免酸度壓過細緻吟釀香。",temp:"冷飲"},
+  "柚子":{styles:["KUN","SOU"],why:"柑橘類香氣可橋接薰酒果香，酸度明顯時則爽酒更穩妥。",temp:"冷飲"},
+  "柳橙":{styles:["KUN"],why:"果香明顯，直接與薰酒的花果香氣形成橋接。",temp:"冷飲"},
+  "蘋果":{styles:["KUN"],why:"吟釀酒最常見的香氣正是蘋果，是典型的香氣橋接範例。",temp:"5-10°C"},
+  "梨":{styles:["KUN"],why:"吟釀酒常見梨、白桃等果香，與梨本身形成經典香氣橋接。",temp:"5-10°C"},
+  "水蜜桃":{styles:["KUN"],why:"與吟釀常見的水蜜桃系果香直接呼應。",temp:"5-10°C"},
+  "哈密瓜":{styles:["KUN","JUN"],why:"甜瓜香氣可橋接薰酒；若追求濃郁甜感也可搭配帶熟成感的醇酒。",temp:"冷飲"},
+  "莓果":{styles:["KUN"],why:"部分大吟釀帶莓果系香氣，可直接橋接。",temp:"冷飲"},
+
+  // ---- 蔬菜 ----
+  "小黃瓜":{styles:["KUN"],why:"青綠、清脆、水感，與吟釀酒常見的青蘋果、瓜果、青綠香氣形成橋接。",temp:"冷飲"},
+  "番茄":{styles:["SOU","KUN"],why:"帶酸度，避免與高香吟釀正面衝突，優先選擇乾淨俐落的爽酒。",temp:"常溫"},
+  "酪梨":{styles:["KUN","SOU"],why:"油脂溫和、風味清爽，薰酒或爽酒皆能維持料理的細緻感。",temp:"冷飲"},
+  "蘆筍":{styles:["SOU","KUN"],why:"青綠植物系風味，適合清爽俐落或帶青草調性的薰酒。",temp:"冷飲"},
+  "牛蒡":{styles:["JUN","SOU"],why:"根莖類土壤感風味，可與純米酒的穀物調性產生共鳴。",temp:"常溫"},
+  "香菇":{styles:["JUN"],why:"菌菇的土壤與旨味調性，與純米酒的米旨味形成典型的旨味共鳴。",temp:"常溫或溫燗"},
+  "野菇":{styles:["JUN"],preferAged:true,why:"菌菇系Earthy香氣與生酛/山廢/熟成型清酒的土壤、發酵調性形成香氣橋接。",temp:"溫燗"},
+
+  // ---- 肉類 ----
+  "豬":{styles:["JUN","SOU"],why:"中等脂肪與旨味，依料理方式(生/煎/炸/滷)可在爽酒到醇酒之間調整。",temp:"依料理方式"},
+  "牛":{styles:["JUN"],why:"高蛋白高旨味，醇酒的米旨味與酒體最能與牛肉的濃郁鮮味共鳴。",temp:"常溫"},
+  "雞":{styles:["SOU","JUN"],why:"中等脂肪，清蒸清爽適合爽酒，燒烤醬煮則轉向醇酒。",temp:"依料理方式"},
+  "鴨":{styles:["JUN"],preferAged:true,why:"高脂肪禽類，依調理濃淡可在醇酒到熟成調性醇酒之間選擇。",temp:"常溫或溫燗"},
+  "羊":{styles:["JUN"],preferAged:true,why:"野味與脂肪較強烈，需要複雜度足夠的熟成調性醇酒才能平衡野味強度。",temp:"15-20°C"},
+  "鹿肉":{styles:["JUN"],preferAged:true,why:"野味強烈，適合濃郁複雜的熟成調性醇酒。",temp:"15-20°C"},
+  "火腿":{styles:["JUN"],why:"發酵鹽漬鮮味，溫熱的醇酒為官方實測效果最佳的組合。",temp:"溫燗"},
+  "培根":{styles:["JUN"],why:"煙燻鹹香與油脂，適合旨味明顯的醇酒。",temp:"常溫"},
+
+  // ---- 乳製品 ----
+  "奶油":{styles:["JUN"],why:"乳脂厚度高，醇酒的酒體與米旨味足以承接乳製品的濃郁口感。",temp:"常溫"},
+  "布里":{styles:["JUN"],why:"軟質起司發酵香氣中等，適合旨味型醇酒。",temp:"常溫"},
+  "卡門貝爾":{styles:["JUN"],preferAged:true,why:"發酵熟成起司，與熟成調性醇酒之間有明確的發酵橋接。",temp:"常溫或溫燗"},
+  "帕馬森":{styles:["JUN"],preferAged:true,why:"長時間熟成的硬質起司，適合同樣具熟成複雜度的醇酒。",temp:"常溫"},
+  "藍紋乳酪":{styles:["JUN"],preferAged:true,why:"發酵風味最強烈的起司之一，需要複雜度足夠的熟成調性醇酒才能匹配。",temp:"常溫或溫燗"},
+
+  // ---- 其他調味／食材 ----
+  "醬油":{styles:["JUN"],why:"發酵鮮味明顯，與純米酒之間存在天然的發酵橋接。",temp:"常溫或溫燗"},
+  "花椒":{styles:["SOU","KUN"],why:"麻感會放大酒精刺激，選擇清爽俐落或柔和的薰酒較穩妥。",temp:"冷飲"},
+  "辣椒":{styles:["SOU","KUN"],why:"辣度提高酒精與苦味感受，避免選擇厚重高酒精的酒款。",temp:"冷飲"},
+  "松露":{styles:["JUN"],preferAged:true,why:"土壤菌菇系香氣與生酛/山廢/熟成型清酒的Earthy調性形成香氣橋接，比華麗吟釀更適合。",temp:"常溫或溫燗"},
+  "芝麻":{styles:["JUN","SOU"],why:"堅果烘焙香氣，中等強度的醇酒或爽酒皆可搭配。",temp:"常溫"},
+  "堅果":{styles:["JUN"],preferAged:true,why:"堅果、烘焙調性與熟成清酒常見的堅果香氣直接呼應。",temp:"常溫"},
+  "乾果":{styles:["JUN"],preferAged:true,why:"乾果的濃縮甜香與熟成調性醇酒的乾果、焦糖香氣形成橋接。",temp:"常溫"},
+  "巧克力":{styles:["JUN"],preferAged:true,why:"官方資料明確指出熟成調性酒款的焦糖、香料、堅果調可以增加巧克力風味的深度，是甜點類最經典的搭配之一。",temp:"常溫"},
+  "香草冰淇淋":{styles:["KUN","JUN"],why:"奶香與香草甜味，可依甜度選擇果香薰酒做甜味呼應，或濃郁醇酒做質地平衡。",temp:"冷飲"}
+};
+function findV2Matches(input) {
+  const query = input.trim().toLowerCase();
+
+  if (!query) return [];
+
+  const dishMatches = (V2_DB.dishes || []).filter(item => {
+    const text = [
+      item.dish,
+      item.core_ingredient,
+      item.cuisine,
+      item.method,
+      item.flavor
+    ]
+      .filter(Boolean)
+      .join(' ')
+      .toLowerCase();
+
+    return text.includes(query);
+  });
+
+  const ingredientMatches = (V2_DB.ingredients || []).filter(item => {
+    const text = [
+      item.ingredient,
+      item.category,
+      item.preparation,
+      item.flavor
+    ]
+      .filter(Boolean)
+      .join(' ')
+      .toLowerCase();
+
+    return text.includes(query);
+  });
+
+  return [
+    ...dishMatches.map(x => ({ ...x, sourceType: 'dish' })),
+    ...ingredientMatches.map(x => ({ ...x, sourceType: 'ingredient' }))
+  ];
+}
+function findDishMatches(input){
+  const matches = [];
+  for(const key in DISH_PROFILES){
+    if(input.includes(key) || key.includes(input)){
+      matches.push({key, ...DISH_PROFILES[key]});
+    }
+  }
+  return matches;
+}
+
+
+function extractRegion(brewery){
+  const m = brewery.match(/\(([^)]+)\)/);
+  return m ? m[1] : "";
+}
+
+function extractTags(text){
+  const hit = new Set();
+  for(const tag in KEYWORD_MAP){
+    for(const kw of KEYWORD_MAP[tag]){
+      if(text.includes(kw)){ hit.add(tag); break; }
+    }
+  }
+  return Array.from(hit);
+}
+
+function quick(text){
+  document.getElementById('dishInput').value = text;
+  doSearch();
+}
+  function renderRandomChips() {
+  const container = document.getElementById('randomChips');
+
+  if (!container) return;
+
+  const ingredients = (V2_DB.ingredients || [])
+    .map(item => ({
+      name: item.ingredient,
+      type: '食材'
+    }))
+    .filter(item => item.name);
+
+  const dishes = (V2_DB.dishes || [])
+    .map(item => ({
+      name: item.dish,
+      type: '料理'
+    }))
+    .filter(item => item.name);
+
+  // 去除重複名稱
+  const uniqueIngredients = [
+    ...new Map(
+      ingredients.map(item => [item.name, item])
+    ).values()
+  ];
+
+  const uniqueDishes = [
+    ...new Map(
+      dishes.map(item => [item.name, item])
+    ).values()
+  ];
+
+  // 隨機洗牌
+  const shuffle = array =>
+    [...array].sort(() => Math.random() - 0.5);
+
+  // 食材 3 個 + 料理 3 個
+  const selected = [
+    ...shuffle(uniqueIngredients).slice(0, 3),
+    ...shuffle(uniqueDishes).slice(0, 3)
+  ];
+
+  // 再把六個順序打散
+  const finalItems = shuffle(selected);
+
+  container.innerHTML = finalItems
+    .map(item => `
+      <span
+        class="chip"
+        onclick="quick('${item.name.replace(/'/g, "\\'")}')"
+        title="${item.type}"
+      >
+        ${item.name}
+      </span>
+    `)
+    .join('');
+}
+
+function v2StyleToCode(style){
+  const map = {
+    '薫酒':'KUN',
+    '薰酒':'KUN',
+    '爽酒':'SOU',
+    '醇酒':'JUN',
+    '熟酒':'JUN'
+  };
+  return map[style] || null;
+}
+
+function renderV2Results(input, matches, resultsEl){
+  const styleScore = {KUN:0, SOU:0, JUN:0};
+  let preferAged = false;
+
+  const unique = [];
+  const seen = new Set();
+  for(const match of matches){
+    const key = [
+      match.sourceType || '',
+      match.dish || match.ingredient || '',
+      match.method || match.preparation || '',
+      match.primary || '',
+      match.secondary || ''
+    ].join('|');
+    if(!seen.has(key)){
+      seen.add(key);
+      unique.push(match);
+    }
+  }
+
+  unique.slice(0,20).forEach(match=>{
+    const primary = v2StyleToCode(match.primary);
+    const secondary = v2StyleToCode(match.secondary);
+    if(primary) styleScore[primary] += 3;
+    if(secondary) styleScore[secondary] += 1.5;
+    if(match.primary === '熟酒' || match.secondary === '熟酒') preferAged = true;
+  });
+
+  let scored = SAKE_DATA.map(s=>{
+    const style = inferStyle(s);
+    let score = styleScore[style] || 0;
+    const fullText = `${s.t || ''} ${s.note || ''}`;
+    const isAgedLeaning = /山廢|山廃|生酛|熟成|陳釀|陳年|古酒|橡木桶/.test(fullText);
+    if(preferAged && style === 'JUN' && isAgedLeaning) score += 3;
+    if(score > 0 && /適合搭配|建議搭配|推薦搭配/.test(s.note || '')) score += 0.3;
+    return {...s, score, style};
+  }).filter(s=>s.score>0);
+
+  scored.sort((a,b)=>{
+    if(b.score !== a.score) return b.score-a.score;
+    const ra = (a.rice===null||a.rice===undefined) ? 999 : a.rice;
+    const rb = (b.rice===null||b.rice===undefined) ? 999 : b.rice;
+    return ra-rb;
+  });
+  scored = scored.slice(0,8);
+
+  const detailHtml = unique.slice(0,6).map(match=>{
+    const name = match.dish || match.ingredient || input;
+    const method = match.method || match.preparation || '';
+    const strategy = match.strategy ? `｜${match.strategy}` : '';
+    const temp = match.temperature ? `　<span class="temp-tag">建議飲用溫度：${match.temperature}</span>` : '';
+    return `<div class="why-item"><b>${name}</b>${method ? `｜${method}` : ''}${strategy}<br>第一推薦：<b>${match.primary || '—'}</b> ／ 第二推薦：${match.secondary || '—'}<br>${match.reason || ''}${temp}</div>`;
+  }).join('');
+
+  resultsEl.innerHTML = `
+    <div class="results-head">
+      <span class="kw">「${input}」的推薦清酒</span>
+      <span class="count">V2 風味資料庫命中 ${unique.length} 筆・推薦 ${scored.length} 款</span>
+    </div>
+    <div class="why-panel">${detailHtml}</div>
+    ${renderCards(scored)}
+  `;
+}
+
+async function doSearch(){
+  const input = document.getElementById('dishInput').value.trim();
+  const resultsEl = document.getElementById('results');
+  if(!input){
+    resultsEl.innerHTML = '';
+    return;
+  }
+
+  // 若清酒 JSON 尚未載入完畢，搜尋前先等待。
+  if(!SAKE_DATA_LOADED && typeof loadSakeData === 'function'){
+    resultsEl.innerHTML = '<div class="empty">正在載入清酒資料庫…</div>';
+    try {
+      await loadSakeData();
+    } catch (error) {
+      resultsEl.innerHTML = '<div class="empty">清酒資料庫載入失敗，請確認 sake-data.json 與 index.html 位於同一資料夾。</div>';
+      return;
+    }
+  }
+
+  // 若使用者在 V2 JSON 尚未載入完畢前就搜尋，先等一次。
+  if((!V2_DB || !Array.isArray(V2_DB.ingredients) || !Array.isArray(V2_DB.dishes) ||
+      (V2_DB.ingredients.length===0 && V2_DB.dishes.length===0)) &&
+      typeof loadV2Database === 'function'){
+    resultsEl.innerHTML = '<div class="empty">正在載入 V2 配對資料庫…</div>';
+    await loadV2Database();
+  }
+
+  const v2Matches = findV2Matches(input);
+  if(v2Matches.length > 0){
+    renderV2Results(input, v2Matches, resultsEl);
+    return;
+  }
+
+  const dishMatches = findDishMatches(input);
+  if(dishMatches.length > 0){
+    renderDishBasedResults(input, dishMatches, resultsEl);
+  }else{
+    renderTagBasedResults(input, resultsEl);
+  }
+}
+
+// 有命中「風味邏輯資料庫」時：依料理的重量/脂肪/旨味/香氣判斷結果，
+// 直接以薰爽醇三大風格為主要依據挑酒，並附上判斷理由。
+function renderDishBasedResults(input, dishMatches, resultsEl){
+  const styleScore = {KUN:0, SOU:0, JUN:0};
+  let preferAged = false;
+  dishMatches.forEach(m=>{
+    m.styles.forEach((st,idx)=>{ styleScore[st] += (idx===0 ? 3 : 1.5); });
+    if(m.preferAged) preferAged = true;
+  });
+
+  let scored = SAKE_DATA.map(s=>{
+    const style = inferStyle(s);
+    let score = styleScore[style] || 0;
+    const isAgedLeaning = /山廢|山廃|生酛|熟成|陳釀|古酒/.test(s.t+s.note);
+    if(preferAged && style==="JUN" && isAgedLeaning) score += 2;
+    if(score>0 && /適合搭配|建議搭配|推薦搭配/.test(s.note)) score += 0.3;
+    return {...s, score, style};
+  }).filter(s=>s.score>0);
+
+  scored.sort((a,b)=>{
+    if(b.score !== a.score) return b.score - a.score;
+    const ra = (a.rice===null||a.rice===undefined) ? 999 : a.rice;
+    const rb = (b.rice===null||b.rice===undefined) ? 999 : b.rice;
+    return ra - rb;
+  });
+  scored = scored.slice(0,8);
+
+  const whyList = dishMatches.map(m=>`<div class="why-item"><b>${m.key}</b>：${m.why}${m.temp ? `　<span class="temp-tag">建議飲用溫度：${m.temp}</span>` : ``}</div>`).join('');
+
+  resultsEl.innerHTML = `
+    <div class="results-head">
+      <span class="kw">「${input}」的推薦清酒</span>
+      <span class="count">依風味邏輯資料庫判斷・共 ${scored.length} 款</span>
+    </div>
+    <div class="why-panel">${whyList}</div>
+    ${renderCards(scored)}
+  `;
+}
+
+// 沒有命中料理資料庫時，退回原本以食材關鍵字/標籤為主的比對方式
+function renderTagBasedResults(input, resultsEl){
+  let tags = extractTags(input);
+  let isFallback = false;
+  if(tags.length===0){
+    tags = ["LIGHT","MEAT","HOTPOT","APERITIF"];
+    isFallback = true;
+  }
+
+  let scored = SAKE_DATA.map(s=>{
+    let score = 0;
+    const style = inferStyle(s);
+    tags.forEach(t=>{
+      if(s.tags.includes(t)) score += 1;
+      if(STYLE_DISH_BONUS[style] && STYLE_DISH_BONUS[style].includes(t)) score += 0.4;
+    });
+    if(score>0 && /適合搭配|建議搭配|推薦搭配/.test(s.note)) score += 0.5;
+    return {...s, score, style};
+  }).filter(s=>s.score>0);
+
+  scored.sort((a,b)=>{
+    if(b.score !== a.score) return b.score - a.score;
+    const ra = (a.rice===null||a.rice===undefined) ? 999 : a.rice;
+    const rb = (b.rice===null||b.rice===undefined) ? 999 : b.rice;
+    return ra - rb;
+  });
+  scored = scored.slice(0,8);
+
+  if(scored.length===0){
+    resultsEl.innerHTML = `
+      <div class="empty">
+        目前找不到明確對應的酒款，試試更具體的描述，<br>
+        例如「烤牛肉」「生魚片」「起司披薩」「麻辣鍋」等。
+      </div>`;
+    return;
+  }
+
+  const tagLabelMap = {SASHIMI:"生魚片/刺身",SEAFOOD:"海鮮",WHITEFISH:"白肉魚",GRILL:"烤物/炙燒",
+    FRIED:"炸物",HOTPOT:"鍋物/燉煮",MEAT:"肉類",CHEESE:"起司/乳酪",DESSERT:"甜點",
+    LIGHT:"清淡和食",APERITIF:"開胃酒",SPICY:"辛香料理",RICH:"重口味"};
+  const matchedLabels = tags.map(t=>tagLabelMap[t]||t).join('、');
+
+  resultsEl.innerHTML = `
+    <div class="results-head">
+      <span class="kw">「${input}」的推薦清酒</span>
+      <span class="count">${isFallback ? '沒有辨識出明確類別，以下是百搭款式推薦' : '辨識風味類型：' + matchedLabels}・共 ${scored.length} 款</span>
+    </div>
+    ${renderCards(scored)}
+  `;
+}
+
+function renderCards(scored){
+  return `
+    <div class="cards">
+      ${scored.map((s,i)=>`
+        <div class="card ${i===0?'top':''}">
+          <div class="card-top">
+            <div>
+              <h3>${s.n}</h3>
+              <div class="meta-row">
+                <span class="region-badge">${extractRegion(s.b)}</span>
+                <span class="brewery">${s.b.replace(/\([^)]+\)/,'')}</span>
+              </div>
+              <div class="meta-row">
+                <span class="type-badge">${s.t}</span>
+                <span class="style-badge">${STYLE_LABEL[s.style]}</span>
+                ${s.rice ? `<span class="rice-badge">精米 ${s.rice}%</span>` : ``}
+              </div>
+            </div>
+            <div class="price">NT$ ${s.p.toLocaleString()}</div>
+          </div>
+          <p class="note">${s.note}</p>
+        </div>
+      `).join('')}
+    </div>
+  `;
+}
+</script>
+</body>
+</html>
