@@ -279,6 +279,23 @@ h1 {
   }
   .style-card b{color:var(--terracotta-dark);font-family:"Shippori Mincho",serif;}
   .footnote{margin-top:16px;color:#a7a8a1;font-size:12px;text-align:center;}
+  @media (max-width: 600px) {
+
+  .search-box{
+    width: calc(100% - 40px);
+    max-width: 360px;
+    margin: 26px auto 8px;
+  }
+
+  .search-box input{
+    min-width: 0;
+  }
+
+  .search-box button{
+    flex-shrink: 0;
+  }
+
+}
 </style>
 </head>
 <body>
