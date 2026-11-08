@@ -296,6 +296,9 @@ h1 {
   }
 
 }
+.clickable{cursor:pointer;transition:.15s;}
+.region-badge.clickable:hover,.type-badge.clickable:hover{border-color:var(--terracotta);}
+.brewery.clickable:hover{color:var(--terracotta-dark);text-decoration:underline;}
 </style>
 </head>
 <body>
@@ -313,7 +316,7 @@ h1 {
   </header>
 
   <div class="search-box">
-    <input id="dishInput" type="text" placeholder="例如：生魚片、烤牛肉、起司、麻辣鍋⋯" onkeydown="if(event.key==='Enter')doSearch()">
+    <input id="dishInput" type="text" placeholder="例如：生魚片、烤牛肉、起司，或「純米酒」「富山」「酒造名」" onkeydown="if(event.key==='Enter')doSearch()">
     <button onclick="doSearch()">搜尋配對</button>
   </div>
  <div class="chips" id="randomChips">
@@ -543,6 +546,85 @@ const DISH_PROFILES = {
   "巧克力":{styles:["JUN"],preferAged:true,why:"官方資料明確指出熟成調性酒款的焦糖、香料、堅果調可以增加巧克力風味的深度，是甜點類最經典的搭配之一。",temp:"常溫"},
   "香草冰淇淋":{styles:["KUN","JUN"],why:"奶香與香草甜味，可依甜度選擇果香薰酒做甜味呼應，或濃郁醇酒做質地平衡。",temp:"冷飲"}
 };
+// ===== 清酒屬性搜尋：地區 / 酒造 / 分類 =====
+function normSake(str){
+  const map={'樂':'楽','峽':'峡','奧':'奥','釀':'醸','廢':'廃','縣':'県'};
+  return String(str||'').toLowerCase().replace(/\s+/g,'').replace(/[樂峽奧釀廢縣]/g,c=>map[c]);
+}
+function getBreweryName(b){ return String(b||'').replace(/\([^)]*\)/g,'').trim(); }
+function getBreweryCore(b){
+  return normSake(getBreweryName(b)).replace(/(酒造場|酒造店|酒造|酒蔵|酒藏|酒廠|醸造場|醸造)$/,'');
+}
+
+function matchSakeFilters(raw){
+  const q = normSake(raw);
+  if(!q) return null;
+  const regions=new Map(), breweries=new Map(), types=new Map();
+  SAKE_DATA.forEach(s=>{
+    const r=extractRegion(s.b||''); if(r) regions.set(normSake(r), r);
+    const name=getBreweryName(s.b); if(name) breweries.set(getBreweryCore(s.b), name);
+    if(s.t) types.set(normSake(s.t), s.t);
+  });
+
+  const regionHits=[], breweryHits=[];
+  regions.forEach((label,key)=>{ if(key.length>=2 && q.includes(key)) regionHits.push(key); });
+  breweries.forEach((name,core)=>{
+    if(!core) return;
+    const full=['酒造','酒造場','酒蔵','酒藏','酒廠'].map(x=>core+x);
+    const hit = q===core || full.some(f=>q.includes(f)) ||
+      (core.length>=2 && (q.includes(core) || (q.length>=2 && core.includes(q))));
+    if(hit) breweryHits.push(core);
+  });
+
+  // 扣掉已認出的地區/酒造後，剩下的文字再去比對分類
+  let rest=q;
+  regionHits.concat(breweryHits).forEach(k=>{ rest=rest.split(k).join(''); });
+  rest=rest.replace(/地區|產區|產地|酒款|清酒|全部|所有|的/g,'');
+
+  let typeHits=[];
+  if(rest.length>=2){
+    const exact=[], partial=[];
+    types.forEach((label,key)=>{
+      if(rest.includes(key)) exact.push(key);
+      else if(key.includes(rest)) partial.push(key);
+    });
+    typeHits = exact.length ? exact.filter(k=>!exact.some(o=>o!==k && o.includes(k))) : partial;
+  }
+
+  if(!regionHits.length && !breweryHits.length && !typeHits.length) return null;
+
+  const list = SAKE_DATA.filter(s=>{
+    if(regionHits.length && !regionHits.includes(normSake(extractRegion(s.b||'')))) return false;
+    if(breweryHits.length && !breweryHits.includes(getBreweryCore(s.b))) return false;
+    if(typeHits.length && !typeHits.includes(normSake(s.t||''))) return false;
+    return true;
+  });
+
+  const labels=[];
+  if(regionHits.length) labels.push('地區：'+regionHits.map(k=>regions.get(k)).join('、'));
+  if(breweryHits.length) labels.push('酒造：'+breweryHits.map(k=>breweries.get(k)).join('、'));
+  if(typeHits.length) labels.push('分類：'+typeHits.map(k=>types.get(k)).join('、'));
+  return {list, labels};
+}
+
+function renderSakeFilterResults(input, result, resultsEl){
+  const sorted = result.list
+    .map(s=>({...s, style: inferStyle(s)}))
+    .sort((a,b)=> getBreweryName(a.b).localeCompare(getBreweryName(b.b),'zh-Hant') || (a.p||0)-(b.p||0));
+
+  if(sorted.length===0){
+    resultsEl.innerHTML = `<div class="empty">沒有同時符合「${result.labels.join('、')}」的酒款，<br>試試只搜尋其中一項。</div>`;
+    return;
+  }
+  resultsEl.innerHTML = `
+    <div class="results-head">
+      <span class="kw">「${input}」的酒款</span>
+      <span class="count">${result.labels.join('・')}・共 ${sorted.length} 款</span>
+    </div>
+    ${renderCards(sorted, {plain:true})}
+  `;
+}
+
 function findV2Matches(input) {
   const query = input.trim().toLowerCase();
 
@@ -772,6 +854,12 @@ async function doSearch(){
     await loadV2Database();
   }
 
+  const sakeFilter = matchSakeFilters(input);
+  if(sakeFilter){
+    renderSakeFilterResults(input, sakeFilter, resultsEl);
+    return;
+  }
+
   const v2Matches = findV2Matches(input);
   if(v2Matches.length > 0){
     renderV2Results(input, v2Matches, resultsEl);
@@ -876,20 +964,24 @@ function renderTagBasedResults(input, resultsEl){
   `;
 }
 
-function renderCards(scored){
+function renderCards(scored, opts = {}){
+  const esc = v => String(v).replace(/\\/g,'\\\\').replace(/'/g,"\\'");
   return `
     <div class="cards">
-      ${scored.map((s,i)=>`
-        <div class="card ${i===0?'top':''}">
+      ${scored.map((s,i)=>{
+        const region = extractRegion(s.b);
+        const brewery = getBreweryName(s.b);
+        return `
+        <div class="card ${(i===0 && !opts.plain)?'top':''}">
           <div class="card-top">
             <div>
               <h3>${s.n}</h3>
               <div class="meta-row">
-                <span class="region-badge">${extractRegion(s.b)}</span>
-                <span class="brewery">${s.b.replace(/\([^)]+\)/,'')}</span>
+                ${region ? `<span class="region-badge clickable" onclick="quick('${esc(region)}')">${region}</span>` : ``}
+                <span class="brewery clickable" onclick="quick('${esc(brewery)}')">${brewery}</span>
               </div>
               <div class="meta-row">
-                <span class="type-badge">${s.t}</span>
+                <span class="type-badge clickable" onclick="quick('${esc(s.t)}')">${s.t}</span>
                 <span class="style-badge">${STYLE_LABEL[s.style]}</span>
                 ${s.rice ? `<span class="rice-badge">精米 ${s.rice}%</span>` : ``}
               </div>
@@ -897,8 +989,8 @@ function renderCards(scored){
             <div class="price">NT$ ${s.p.toLocaleString()}</div>
           </div>
           <p class="note">${s.note}</p>
-        </div>
-      `).join('')}
+        </div>`;
+      }).join('')}
     </div>
   `;
 }
